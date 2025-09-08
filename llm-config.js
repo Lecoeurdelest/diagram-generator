@@ -1,6 +1,6 @@
 export const apiProviders = {
     gemini: async (userInput, diagramType) => {
-        const API_KEY = 'AIzaSyAT6IViDWeG9wH7oD4mTyrXdq4VvO4L0V4';        
+        const API_KEY = 'YOUR-API-KEY';        
         const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${API_KEY}`;
         const prompt = genDiagramPrompt(userInput, diagramType);    
         const response = await fetch(API_URL, {
