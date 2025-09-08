@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Hmmmmnm Diagram Encoder</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Hmmmmnm Diagram Generator</h1>
+
+        <div class="input-section">
+            <!-- ... nội dung của input-section ... -->
+            <div class="diagram-type-selector">
+                <div class="selector-group">
+                    <label>📊 Ngôn ngữ:</label>
+                    <div class="select-wrapper">
+                        <input type="checkbox" id="diagramTypeToggle" class="select-input">
+                        <label for="diagramTypeToggle" class="select-trigger">
+                            <span class="select-value">Mermaid</span>
+                            <svg class="select-arrow" viewBox="0 0 1024 1024" fill="currentColor"><path d="M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z"/></svg>
+                        </label>
+                        <div class="select-dropdown">
+                            <button class="select-option selected" data-value="mermaid">Mermaid</button>
+                            <button class="select-option" data-value="plantuml">PlantUML</button>
+                        </div>
+                        <input type="hidden" id="diagramType" value="mermaid">
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button id="openLinkBtn" class="action-btn" disabled>↗️ Mở Link</button>
+                    <button id="downloadBtn" class="action-btn" disabled>📥 Tải SVG</button>
+                </div>
+            </div>
+            <label for="diagramInput">📝 Diagram Source:</label>
+            <textarea id="diagramInput"></textarea>
+        </div>
+        
+        <div class="action-buttons-main">
+            <button id="compressBtn">🚀 Encode</button>
+            <button id="clearBtn">🗑️ Clear All</button>
+            <button id="askLlmBtn">❓ Hỏi LLM</button>
+        </div>
+
+        <div id="llmModalOverlay" class="modal-overlay hidden">
+            <div class="modal-content">
+                <button id="closeLlmModalBtn" class="modal-close-btn">&times;</button>
+                <label for="llmInput" class="modal-label">Nhập yêu cầu của bạn cho Gemini:</label>
+                <textarea id="llmInput" class="modal-textarea" rows="6" placeholder="Ví dụ: tạo một sơ đồ mermaid về quy trình đăng nhập người dùng"></textarea>
+                <button id="submitLlmBtn" class="modal-submit-btn">Gửi yêu cầu</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="pako.min.js"></script>
+    <script type="module" src="popup.js"></script>
+</body>
+</html>

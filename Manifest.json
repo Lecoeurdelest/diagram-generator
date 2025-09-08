@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "Hmmmmnm Diagram Encoder",
+  "version": "1.0",
+  "action": {
+    "default_popup": "popup.html"
+  },
+
+  "permissions": [
+    "tabs",       
+    "downloads"   
+  ],
+
+  "host_permissions": [
+    "http://localhost:8000/*", 
+    "http://*/*",              
+    "https://*/*"             
+  ]
+}

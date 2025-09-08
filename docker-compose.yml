@@ -1,0 +1,34 @@
+services:
+  kroki:
+    image: yuzutech/kroki:latest
+    container_name: kroki
+    ports:
+      - "8000:8000"
+    environment:
+      - KROKI_MERMAID_HOST=kroki-mermaid
+      - KROKI_SAFE_MODE=unsafe
+      - KROKI_CONVERT_TIMEOUT=60s
+    networks:
+      - kroki-network
+    restart: unless-stopped
+    depends_on:
+      kroki-mermaid:
+        condition: service_healthy
+
+  kroki-mermaid:
+    image: yuzutech/kroki-mermaid:latest
+    container_name: kroki-mermaid
+    networks:
+      - kroki-network
+    restart: unless-stopped
+    environment:
+      - KROKI_MAX_BODY_SIZE=5mb
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8002/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  kroki-network:
+    driver: bridge
