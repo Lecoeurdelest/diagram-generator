@@ -43,8 +43,9 @@ const SettingsModal = ({ isSettingsModalOpen, setIsSettingsModalOpen }) => {
   if (!isSettingsModalOpen) return null;
 
   return (
-    <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-[90%] max-w-[500px] shadow-lg">
+<div className="absolute inset-0 bg-black bg-opacity-50 z-50 flex items-start justify-center">
+  <div className="bg-white rounded-lg p-6 w-[90%] max-w-[500px] shadow-lg max-h-[90vh] overflow-y-auto mt-3">
+
         <h2 className="text-xl font-semibold mb-4">Cài đặt</h2>
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700">Chiều rộng ảnh (px)</label>
