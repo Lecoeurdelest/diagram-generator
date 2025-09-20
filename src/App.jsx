@@ -28,53 +28,54 @@ function App() {
   const [isLlmLoading, setIsLlmLoading] = useState(false);
   const selectWrapperRef = useRef(null);
 
-  const handleCompress = () => {
+  const handleOpenLink = () => {
     if (!diagramSource.trim()) return;
     try {
       const encodedData = encodeDiagram(diagramSource);
       const newUrl = `${getUrl()}/${diagramType}/svg/${encodedData}`;
       setCurrentDiagramUrl(newUrl);
+      if (typeof window.chrome !== 'undefined' && window.chrome.tabs) {
+        chrome.tabs.create({ url: newUrl });
+      } else {
+        window.open(newUrl, '_blank');
+      }
     } catch (error) {
-      alert(`Lỗi khi nén: ${error.message}`);
+      alert(`Lỗi khi mã hóa: ${error.message}`);
+    }
+  };
+
+  const handleDownload = () => {
+    try {
+      const encodedData = encodeDiagram(diagramSource);
+      const newUrl = `${getUrl()}/${diagramType}/svg/${encodedData}`;
+      setCurrentDiagramUrl(newUrl);
+      if (typeof window.chrome !== 'undefined' && window.chrome.downloads) {
+        chrome.downloads.download({
+          url: newUrl,
+          filename: `${diagramType}-diagram.svg`,
+          saveAs: true
+        }, (downloadId) => {
+          if (chrome.runtime.lastError) {
+            console.error("Download failed:", chrome.runtime.lastError.message);
+            alert('Không thể tải file. Vui lòng kiểm tra console của extension.');
+          }
+        });
+      } else {
+        const link = document.createElement('a');
+        link.href = newUrl;
+        link.download = `${diagramType}-diagram.svg`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    } catch (error) {
+      alert(`Lỗi khi mã hóa: ${error.message}`);
     }
   };
 
   const handleClearAll = () => {
     setDiagramSource('');
     setCurrentDiagramUrl('');
-  };
-
-  const handleOpenLink = () => {
-    if (currentDiagramUrl) {
-      if (typeof window.chrome !== 'undefined' && window.chrome.tabs) {
-        chrome.tabs.create({ url: currentDiagramUrl });
-      } else {
-        window.open(currentDiagramUrl, '_blank');
-      }
-    }
-  };
-
-  const handleDownload = () => {
-    if (!currentDiagramUrl) return;
-    if (typeof window.chrome !== 'undefined' && window.chrome.downloads) {
-      chrome.downloads.download({
-        url: currentDiagramUrl,
-        filename: `${diagramType}-diagram.svg`,
-        saveAs: true
-      }, (downloadId) => {
-        if (chrome.runtime.lastError) {
-          console.error("Download failed:", chrome.runtime.lastError.message);
-          alert('Không thể tải file. Vui lòng kiểm tra console của extension.');
-        }
-      });
-    } else {
-      const link = document.createElement('a');
-      link.href = currentDiagramUrl;
-      link.download = `${diagramType}-diagram.svg`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
   };
 
   const handleSubmitLlm = async () => {
@@ -94,7 +95,15 @@ function App() {
 
   useEffect(() => {
     if (diagramSource.trim()) {
-      handleCompress();
+      try {
+        const encodedData = encodeDiagram(diagramSource);
+        const newUrl = `${getUrl()}/${diagramType}/svg/${encodedData}`;
+        setCurrentDiagramUrl(newUrl);
+      } catch (error) {
+        alert(`Lỗi khi mã hóa: ${error.message}`);
+      }
+    } else {
+      setCurrentDiagramUrl('');
     }
   }, [diagramSource, diagramType]);
 
@@ -102,12 +111,12 @@ function App() {
     const handleKeydown = (e) => {
       if (e.ctrlKey && e.key === 'Enter') {
         e.preventDefault();
-        handleCompress();
+        handleOpenLink();
       }
     };
     document.addEventListener('keydown', handleKeydown);
     return () => document.removeEventListener('keydown', handleKeydown);
-  }, []);
+  }, [diagramSource, diagramType]);
 
   return (
     <div className="bg-[#7B68EE] w-[580px] min-h-[400px] p-6 font-sans box-border">
@@ -132,7 +141,6 @@ function App() {
           />
         </div>
         <ActionButtons
-          handleCompress={handleCompress}
           handleClearAll={handleClearAll}
           setIsModalOpen={setIsModalOpen}
         />
