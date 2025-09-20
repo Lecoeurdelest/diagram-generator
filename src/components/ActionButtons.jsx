@@ -1,4 +1,4 @@
-const ActionButtons = ({ handleClearAll, setIsModalOpen }) => {
+const ActionButtons = ({ handleClearAll, setIsModalOpen, setIsSettingsModalOpen }) => {
   return (
     <div className="text-center">
       <button
@@ -12,6 +12,12 @@ const ActionButtons = ({ handleClearAll, setIsModalOpen }) => {
         onClick={() => setIsModalOpen(true)}
       >
         ❓ Hỏi LLM
+      </button>
+      <button
+        className="bg-[#6f42c1] text-white border-none px-6 py-2.5 rounded-lg font-semibold text-base hover:-translate-y-0.5 transition-transform ml-2"
+        onClick={() => setIsSettingsModalOpen(true)}
+      >
+        ⚙️ Settings
       </button>
     </div>
   );

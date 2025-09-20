@@ -6,6 +6,7 @@ import DiagramInput from './components/DiagramInput.jsx';
 import ActionButtons from './components/ActionButtons.jsx';
 import TopActionButtons from './components/TopActionButtons.jsx';
 import LlmModal from './components/LlmModal.jsx';
+import SettingsModal from './components/SettingsModal.jsx';
 import './index.css';
 
 const encodeDiagram = (diagramSource) => {
@@ -24,12 +25,16 @@ function App() {
   const [diagramSource, setDiagramSource] = useState('');
   const [currentDiagramUrl, setCurrentDiagramUrl] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [llmInput, setLlmInput] = useState('');
   const [isLlmLoading, setIsLlmLoading] = useState(false);
   const selectWrapperRef = useRef(null);
 
   const handleCompress = () => {
-    if (!diagramSource.trim()) return;
+    if (!diagramSource.trim()) {
+      alert('Vui lòng nhập mã diagram trước khi mở link.');
+      return;
+    }
     try {
       const encodedData = encodeDiagram(diagramSource);
       const newUrl = `${getUrl()}/${diagramType}/svg/${encodedData}`;
@@ -45,9 +50,16 @@ function App() {
   };
 
   const handleDownload = () => {
+    if (!diagramSource.trim()) {
+      alert('Vui lòng nhập mã diagram trước khi tải.');
+      return;
+    }
     try {
       const encodedData = encodeDiagram(diagramSource);
-      const newUrl = `${getUrl()}/${diagramType}/svg/${encodedData}`;
+      let newUrl = `${getUrl()}/${diagramType}/svg/${encodedData}`;
+      const imageWidth = localStorage.getItem('imageWidth') || '800';
+      const imageHeight = localStorage.getItem('imageHeight') || '600';
+      newUrl += `?width=${imageWidth}&height=${imageHeight}`;
       setCurrentDiagramUrl(newUrl);
       if (typeof window.chrome !== 'undefined' && window.chrome.downloads) {
         chrome.downloads.download({
@@ -97,7 +109,9 @@ function App() {
     if (diagramSource.trim()) {
       try {
         const encodedData = encodeDiagram(diagramSource);
-        const newUrl = `${getUrl()}/${diagramType}/svg/${encodedData}`;
+        const imageWidth = localStorage.getItem('imageWidth') || '800';
+        const imageHeight = localStorage.getItem('imageHeight') || '600';
+        const newUrl = `${getUrl()}/${diagramType}/svg/${encodedData}?width=${imageWidth}&height=${imageHeight}`;
         setCurrentDiagramUrl(newUrl);
       } catch (error) {
         alert(`Lỗi khi mã hóa: ${error.message}`);
@@ -143,6 +157,7 @@ function App() {
         <ActionButtons
           handleClearAll={handleClearAll}
           setIsModalOpen={setIsModalOpen}
+          setIsSettingsModalOpen={setIsSettingsModalOpen}
         />
         <LlmModal
           isModalOpen={isModalOpen}
@@ -151,6 +166,10 @@ function App() {
           setLlmInput={setLlmInput}
           handleSubmitLlm={handleSubmitLlm}
           isLlmLoading={isLlmLoading}
+        />
+        <SettingsModal
+          isSettingsModalOpen={isSettingsModalOpen}
+          setIsSettingsModalOpen={setIsSettingsModalOpen}
         />
       </div>
     </div>
