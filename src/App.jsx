@@ -28,7 +28,7 @@ function App() {
   const [isLlmLoading, setIsLlmLoading] = useState(false);
   const selectWrapperRef = useRef(null);
 
-  const handleOpenLink = () => {
+  const handleCompress = () => {
     if (!diagramSource.trim()) return;
     try {
       const encodedData = encodeDiagram(diagramSource);
@@ -111,7 +111,7 @@ function App() {
     const handleKeydown = (e) => {
       if (e.ctrlKey && e.key === 'Enter') {
         e.preventDefault();
-        handleOpenLink();
+        handleCompress();
       }
     };
     document.addEventListener('keydown', handleKeydown);
@@ -130,7 +130,7 @@ function App() {
               selectWrapperRef={selectWrapperRef}
             />
             <TopActionButtons
-              handleOpenLink={handleOpenLink}
+              handleOpenLink={handleCompress}
               handleDownload={handleDownload}
               currentDiagramUrl={currentDiagramUrl}
             />

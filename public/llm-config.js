@@ -25,7 +25,7 @@ const genDiagramPrompt = (userInput, diagramType) => {
 
 export const apiProviders = {
     gemini: async (userInput, diagramType) => {
-        const API_KEY = 'AIzaSyC3AJCBcHCWgFMZZsoEXFLmZvHQyTbTMqw';
+        const API_KEY = 'YOUR_API_KEY_HERE';
 
         const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`;
         const prompt = genDiagramPrompt(userInput, diagramType);
