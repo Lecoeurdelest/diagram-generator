@@ -9,7 +9,7 @@ const SettingsModal = ({ isSettingsModalOpen, setIsSettingsModalOpen }) => {
   const [model, setModel] = useState(localStorage.getItem('model') || 'gemini-1.5-flash-latest');
 
   const models = {
-    gemini: ['gemini-1.5-flash-latest', 'gemini-1.5-pro-latest'],
+    gemini: ['gemini-1.5-flash-latest', 'gemini-1.5-pro-latest', 'gemini-2.0-flash-latest', 'gemini-2.5-pro-latest'],
     openai: ['gpt-4o', 'gpt-3.5-turbo']
   };
 
