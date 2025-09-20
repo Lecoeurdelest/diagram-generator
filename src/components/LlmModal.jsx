@@ -16,7 +16,7 @@ const LlmModal = ({ isModalOpen, setIsModalOpen, llmInput, setLlmInput, handleSu
         >
           &times;
         </button>
-        <label className="text-[#333] font-semibold block mb-2.5">Nhập yêu cầu của bạn cho Gemini:</label>
+        <label className="text-[#333] font-semibold block mb-2.5">Nhập yêu cầu của bạn cho AI:</label>
         <textarea
           className="w-full p-2.5 rounded-lg border border-[#ccc] text-base font-sans resize-y box-border"
           rows="6"

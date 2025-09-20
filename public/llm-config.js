@@ -24,42 +24,74 @@ const genDiagramPrompt = (userInput, diagramType) => {
 }
 
 export const apiProviders = {
-    gemini: async (userInput, diagramType) => {
-        const API_KEY = 'YOUR_API_KEY_HERE';
+  gemini: async (userInput, diagramType, model) => {
+    const apiKey = localStorage.getItem('apiKey') || 'YOUR-API-KEY';
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+    const prompt = genDiagramPrompt(userInput, diagramType);
 
-        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`;
-        const prompt = genDiagramPrompt(userInput, diagramType);
-
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }],
-                generationConfig: {
-                    responseMimeType: "application/json",
-                    temperature: 0.2,
-                }
-            })
-        });
-
-        if (!response.ok) {
-            const errorBody = await response.json();
-            throw new Error(`Lỗi từ API Server: ${errorBody.error.message}`);
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+          responseMimeType: "application/json",
+          temperature: 0.2,
         }
+      })
+    });
 
-        const data = await response.json();
-
-        try {
-            const textResponse = data.candidates[0].content.parts[0].text;
-            const parsedData = JSON.parse(textResponse);
-            
-            if (typeof parsedData.diagramCode !== 'string') {
-                 throw new Error("Key 'diagramCode' không tồn tại hoặc không phải là chuỗi.");
-            }
-            
-            return parsedData.diagramCode.trim();
-        } catch (e) {
-            throw new Error("Gemini đã trả về dữ liệu không đúng định dạng JSON mong muốn.");
-        }
+    if (!response.ok) {
+      const errorBody = await response.json();
+      throw new Error(`Lỗi từ Gemini API: ${errorBody.error.message}`);
     }
+
+    const data = await response.json();
+    try {
+      const textResponse = data.candidates[0].content.parts[0].text;
+      const parsedData = JSON.parse(textResponse);
+      if (typeof parsedData.diagramCode !== 'string') {
+        throw new Error("Key 'diagramCode' không tồn tại hoặc không phải là chuỗi.");
+      }
+      return parsedData.diagramCode.trim();
+    } catch (e) {
+      throw new Error("Gemini đã trả về dữ liệu không đúng định dạng JSON mong muốn.");
+    }
+  },
+  openai: async (userInput, diagramType, model) => {
+    const apiKey = localStorage.getItem('apiKey') || 'YOUR-API-KEY';
+    const apiUrl = `https://api.openai.com/v1/chat/completions`;
+    const prompt = genDiagramPrompt(userInput, diagramType);
+
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: model,
+        messages: [{ role: 'user', content: prompt }],
+        response_format: { type: 'json_object' },
+        temperature: 0.2
+      })
+    });
+
+    if (!response.ok) {
+      const errorBody = await response.json();
+      throw new Error(`Lỗi từ Open AI API: ${errorBody.error.message}`);
+    }
+
+    const data = await response.json();
+    try {
+      const textResponse = data.choices[0].message.content;
+      const parsedData = JSON.parse(textResponse);
+      if (typeof parsedData.diagramCode !== 'string') {
+        throw new Error("Key 'diagramCode' không tồn tại hoặc không phải là chuỗi.");
+      }
+      return parsedData.diagramCode.trim();
+    } catch (e) {
+      throw new Error("Open AI đã trả về dữ liệu không đúng định dạng JSON mong muốn.");
+    }
+  }
 };

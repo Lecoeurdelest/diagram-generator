@@ -18,7 +18,7 @@ const encodeDiagram = (diagramSource) => {
   return btoa(binaryString).replace(/\+/g, '-').replace(/\//g, '_');
 };
 
-const getUrl = () => 'https://kroki.io';
+const getUrl = () => localStorage.getItem('serverUrl') || 'https://kroki.io';
 
 function App() {
   const [diagramType, setDiagramType] = useState('mermaid');
@@ -133,8 +133,8 @@ function App() {
   }, [diagramSource, diagramType]);
 
   return (
-    <div className="bg-[#7B68EE] w-[580px] min-h-[400px] p-6 font-sans box-border">
-      <div className="w-full relative">
+    <div className="bg-[#7B68EE] w-[580px] min-h-[400px] p-6 font-sans box-border relative">
+      <div className="w-full">
         <h1 className="text-white text-center mb-5 text-3xl font-bold">🔧 Hmmmmnm Diagram Generator</h1>
         <div className="bg-[#F8F9FA] rounded-2xl p-5 mb-5 flex flex-col min-h-[250px]">
           <div className="flex justify-between items-baseline mb-4">
