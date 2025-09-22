@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 const genDiagramPrompt = (userInput, diagramType) => {
   return JSON.stringify({
     task: "Generate diagram-as-code script from a user's natural language description.",
@@ -24,38 +26,37 @@ const genDiagramPrompt = (userInput, diagramType) => {
 }
 
 export const apiProviders = {
-  gemini: async (userInput, diagramType, model) => {
+  gemini: async (userInput, diagramType) => {
     const apiKey = localStorage.getItem('apiKey') || 'YOUR-API-KEY';
+    let model = localStorage.getItem('model');
+    if (!model || model === 'undefined' || model === 'null') {
+      model = 'gemini-1.5-flash-latest';
+      localStorage.setItem('model', model);
+    }
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
     const prompt = genDiagramPrompt(userInput, diagramType);
 
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    try {
+      const response = await axios.post(apiUrl, {
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: {
           responseMimeType: "application/json",
           temperature: 0.2,
         }
-      })
-    });
+      });
 
-    if (!response.ok) {
-      const errorBody = await response.json();
-      throw new Error(`Lỗi từ Gemini API: ${errorBody.error.message}`);
-    }
-
-    const data = await response.json();
-    try {
+      const data = response.data;
       const textResponse = data.candidates[0].content.parts[0].text;
       const parsedData = JSON.parse(textResponse);
       if (typeof parsedData.diagramCode !== 'string') {
-        throw new Error("Key 'diagramCode' không tồn tại hoặc không phải là chuỗi.");
+        throw new Error("Key 'diagramCode' does not exist or is not a string.");
       }
       return parsedData.diagramCode.trim();
-    } catch (e) {
-      throw new Error("Gemini đã trả về dữ liệu không đúng định dạng JSON mong muốn.");
+    } catch (error) {
+      if (error.response) {
+        throw new Error(`Error from Gemini API: ${error.response.data.error.message}`);
+      }
+      throw new Error("Gemini returned data in an incorrect JSON format.");
     }
   },
   openai: async (userInput, diagramType, model) => {
@@ -63,35 +64,31 @@ export const apiProviders = {
     const apiUrl = `https://api.openai.com/v1/chat/completions`;
     const prompt = genDiagramPrompt(userInput, diagramType);
 
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
+    try {
+      const response = await axios.post(apiUrl, {
         model: model,
         messages: [{ role: 'user', content: prompt }],
         response_format: { type: 'json_object' },
         temperature: 0.2
-      })
-    });
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        }
+      });
 
-    if (!response.ok) {
-      const errorBody = await response.json();
-      throw new Error(`Lỗi từ Open AI API: ${errorBody.error.message}`);
-    }
-
-    const data = await response.json();
-    try {
+      const data = response.data;
       const textResponse = data.choices[0].message.content;
       const parsedData = JSON.parse(textResponse);
       if (typeof parsedData.diagramCode !== 'string') {
-        throw new Error("Key 'diagramCode' không tồn tại hoặc không phải là chuỗi.");
+        throw new Error("Key 'diagramCode' does not exist or is not a string.");
       }
       return parsedData.diagramCode.trim();
-    } catch (e) {
-      throw new Error("Open AI đã trả về dữ liệu không đúng định dạng JSON mong muốn.");
+    } catch (error) {
+      if (error.response) {
+        throw new Error(`Error from Open AI API: ${error.response.data.error.message}`);
+      }
+      throw new Error("Open AI returned data in an incorrect JSON format.");
     }
   }
 };

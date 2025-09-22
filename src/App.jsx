@@ -92,9 +92,12 @@ function App() {
 
   const handleSubmitLlm = async () => {
     if (!llmInput.trim()) return;
+    const provider = localStorage.getItem('provider') || 'gemini';
     setIsLlmLoading(true);
     try {
-      const resultSource = await apiProviders.gemini(llmInput, diagramType);
+      const resultSource = await (provider === 'openai'
+        ? apiProviders.openai(llmInput, diagramType)
+        : apiProviders.gemini(llmInput, diagramType))
       setDiagramSource(resultSource);
       setIsModalOpen(false);
       setLlmInput('');
