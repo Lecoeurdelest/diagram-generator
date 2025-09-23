@@ -3,9 +3,10 @@ services:
     image: yuzutech/kroki:latest
     container_name: kroki
     ports:
-      - "8000:8000"
+      - "8080:8000" # đổi port host sang 8080
     environment:
       - KROKI_MERMAID_HOST=kroki-mermaid
+      - KROKI_BPMN_HOST=kroki-bpmn
       - KROKI_SAFE_MODE=unsafe
       - KROKI_CONVERT_TIMEOUT=60s
     networks:
@@ -14,6 +15,8 @@ services:
     depends_on:
       kroki-mermaid:
         condition: service_healthy
+      kroki-bpmn:
+        condition: service_started
 
   kroki-mermaid:
     image: yuzutech/kroki-mermaid:latest
@@ -28,6 +31,13 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  kroki-bpmn:
+    image: yuzutech/kroki-bpmn:latest
+    container_name: kroki-bpmn
+    networks:
+      - kroki-network
+    restart: unless-stopped
 
 networks:
   kroki-network:
